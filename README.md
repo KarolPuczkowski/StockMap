@@ -8,3 +8,7 @@
     - set custom icons for magazines, file upload ui component in souce add/edit form
     - filters for example: stock dropdown => shows only sources asociated to selected stock
     - create config to set default zoom and starting center point
+
+## TODO
+
+    - extend ui component, dont override whole form
