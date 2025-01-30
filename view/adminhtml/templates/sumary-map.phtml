@@ -1,0 +1,77 @@
+<div style="position: relative;">
+    <div id="map" style="width: 100%; height: 800px; order: -1;"></div>
+    <button id="toggle-view" style="position: absolute; top: 10px; right: 10px; z-index: 1000;">
+        Toggle Cluster View
+    </button>
+</div>
+<script type="text/javascript">
+    require(['jquery','leaflet', 'leaflet.markercluster'], function($, L) {
+        var map = L.map('map').setView([51.115652, 15.334941], 6);
+
+        L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+            maxZoom: 19,
+        }).addTo(map);
+
+        var markersCluster = L.markerClusterGroup();  // For clustered markers
+        var markersLayer = L.layerGroup(); 
+
+        <?php foreach ($block->getStockSources() as $source): ?>
+
+            function createCustomIcon(color) {
+                var svgIcon = `
+                    <svg width="32" height="32" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                        <path fill="${color}" d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/>
+                    </svg>
+                `;
+                return L.divIcon({
+                    className: "custom-icon",
+                    html: svgIcon,
+                    iconSize: [32, 32],
+                    iconAnchor: [16, 32],
+                    popupAnchor: [0, -32]
+                });
+            }
+
+            var popupContent = `
+                <div style="max-width: 250px;">
+                    <h3 style="margin: 0; font-size: 16px;"><?= addslashes($source['name']) ?></h3>
+                    <div style="margin: 15px 0;">
+                        <strong><?=__('Address')?>:</strong>
+                        <div style="display: flex; flex-direction: column;">
+                            <span><?= addslashes($source['region']) ?></span>
+                            <span><?= addslashes($source['postcode']) ?> <?= addslashes($source['city']) ?></span>
+                            <span><?= addslashes($source['street']) ?></span>
+                        </div>
+                    </div>
+                    <p><strong><?=__('Contact')?>:</strong> <a href="mailto:<?= addslashes($source['email']) ?>" title="<?=__('Write to %1', $source['name'])?>"><?= addslashes($source['email']) ?></a></p>
+                    <br>
+                    <a href="<?= $block->getAdminSourceEditUrl($source['source_code']) ?>" title="<?=__('View Details of %1', $source['name'])?>" target="_blank"><?=__('View Details')?></a>
+                </div>
+            `;
+
+            var color = "#eb5202";
+            var marker = L.marker([<?= $source['latitude'] ?>, <?= $source['longitude'] ?>],{ icon: createCustomIcon(color) })
+                .bindPopup(popupContent);
+
+            markersCluster.addLayer(marker);
+            markersLayer.addLayer(marker);
+        <?php endforeach; ?>
+
+        map.addLayer(markersCluster);
+
+        // Button to toggle between clustered and individual markers
+        $('#toggle-view').click(function() {
+            if (map.hasLayer(markersCluster)) {
+                // If clustered markers are shown, switch to individual markers
+                map.removeLayer(markersCluster);
+                map.addLayer(markersLayer);
+                $(this).text('Show Clusters');
+            } else {
+                // If individual markers are shown, switch to clusters
+                map.removeLayer(markersLayer);
+                map.addLayer(markersCluster);
+                $(this).text('Show Individual Markers');
+            }
+        });
+    });
+</script>

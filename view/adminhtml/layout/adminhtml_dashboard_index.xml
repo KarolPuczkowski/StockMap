@@ -1,0 +1,11 @@
+<?xml version="1.0"?>
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <css src="SkiDev_StockMap::css/leaflet.css"/>
+    </head>
+    <body>
+        <referenceContainer name="content">
+            <block class="SkiDev\StockMap\Block\Adminhtml\Map" name="stock.map" template="SkiDev_StockMap::sumary-map.phtml" before="-"/>
+        </referenceContainer>
+    </body>
+</page>
